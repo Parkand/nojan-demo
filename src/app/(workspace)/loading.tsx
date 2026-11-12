@@ -1,0 +1,1 @@
+export default function Loading(){return <div className="loading" role="status" aria-label="در حال بارگذاری"><div className="skeleton title"/><div className="skeleton bar"/><div className="card-grid">{[1,2,3,4].map(n=><div key={n} className="skeleton card"/>)}</div><span className="muted">در حال دریافت اطلاعات…</span></div>;}

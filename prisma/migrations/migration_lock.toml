@@ -1,0 +1,2 @@
+# Generated migration history. Do not change the provider.
+provider = "mysql"

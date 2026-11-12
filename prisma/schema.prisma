@@ -1,0 +1,137 @@
+generator client {
+  provider = "prisma-client-js"
+}
+datasource db {
+  provider = "mysql"
+  url = env("DATABASE_URL")
+}
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  createdById Int?
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+  updatedById Int?
+  deletedAt DateTime? @db.DateTime(3)
+  deletedById Int?
+  createdBy User? @relation("User_created",fields:[createdById],references:[id],onDelete:Restrict,onUpdate:Restrict)
+  updatedBy User? @relation("User_updated",fields:[updatedById],references:[id],onDelete:Restrict,onUpdate:Restrict)
+  deletedBy User? @relation("User_deleted",fields:[deletedById],references:[id],onDelete:Restrict,onUpdate:Restrict)
+  auditUserCreated User[] @relation("User_created")
+  auditUserUpdated User[] @relation("User_updated")
+  auditUserDeleted User[] @relation("User_deleted")
+  auditCategoryCreated Category[] @relation("Category_created")
+  auditCategoryUpdated Category[] @relation("Category_updated")
+  auditCategoryDeleted Category[] @relation("Category_deleted")
+  auditProductCreated Product[] @relation("Product_created")
+  auditProductUpdated Product[] @relation("Product_updated")
+  auditProductDeleted Product[] @relation("Product_deleted")
+  auditOrderCreated Order[] @relation("Order_created")
+  auditOrderUpdated Order[] @relation("Order_updated")
+  auditOrderDeleted Order[] @relation("Order_deleted")
+  auditOrderItemCreated OrderItem[] @relation("OrderItem_created")
+  auditOrderItemUpdated OrderItem[] @relation("OrderItem_updated")
+  auditOrderItemDeleted OrderItem[] @relation("OrderItem_deleted")
+  name String @db.VarChar(100)
+  username String @unique @db.VarChar(64)
+  passwordHash String @db.VarChar(255)
+  role Role @default(USER)
+  sessionVersion Int @default(0)
+  failedLoginAttempts Int @default(0)
+  lockedUntil DateTime? @db.DateTime(3)
+  orders Order[] @relation("OrderOwner")
+  approvals Order[] @relation("OrderApprover")
+  @@index([deletedAt])
+  @@map("users")
+}
+
+model Category {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  createdById Int?
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+  updatedById Int?
+  deletedAt DateTime? @db.DateTime(3)
+  deletedById Int?
+  createdBy User? @relation("Category_created",fields:[createdById],references:[id],onDelete:Restrict,onUpdate:Restrict)
+  updatedBy User? @relation("Category_updated",fields:[updatedById],references:[id],onDelete:Restrict,onUpdate:Restrict)
+  deletedBy User? @relation("Category_deleted",fields:[deletedById],references:[id],onDelete:Restrict,onUpdate:Restrict)
+  code String @unique @db.VarChar(40)
+  name String @db.VarChar(120)
+  products Product[]
+  @@index([deletedAt])
+  @@map("categories")
+}
+
+model Product {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  createdById Int?
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+  updatedById Int?
+  deletedAt DateTime? @db.DateTime(3)
+  deletedById Int?
+  createdBy User? @relation("Product_created",fields:[createdById],references:[id],onDelete:Restrict,onUpdate:Restrict)
+  updatedBy User? @relation("Product_updated",fields:[updatedById],references:[id],onDelete:Restrict,onUpdate:Restrict)
+  deletedBy User? @relation("Product_deleted",fields:[deletedById],references:[id],onDelete:Restrict,onUpdate:Restrict)
+  code String @unique @db.VarChar(40)
+  name String @db.VarChar(160)
+  unit String @db.VarChar(30)
+  categoryId Int
+  category Category @relation(fields:[categoryId],references:[id],onDelete:Restrict)
+  orderItems OrderItem[]
+  @@index([categoryId, deletedAt])
+  @@index([deletedAt])
+  @@map("products")
+}
+
+model Order {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  createdById Int?
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+  updatedById Int?
+  deletedAt DateTime? @db.DateTime(3)
+  deletedById Int?
+  createdBy User? @relation("Order_created",fields:[createdById],references:[id],onDelete:Restrict,onUpdate:Restrict)
+  updatedBy User? @relation("Order_updated",fields:[updatedById],references:[id],onDelete:Restrict,onUpdate:Restrict)
+  deletedBy User? @relation("Order_deleted",fields:[deletedById],references:[id],onDelete:Restrict,onUpdate:Restrict)
+  orderDate DateTime @db.Date
+  userId Int
+  user User @relation("OrderOwner",fields:[userId],references:[id],onDelete:Restrict)
+  approvedAt DateTime? @db.DateTime(3)
+  approvedById Int?
+  approvedBy User? @relation("OrderApprover",fields:[approvedById],references:[id],onDelete:Restrict)
+  items OrderItem[]
+  @@index([userId, deletedAt, createdAt])
+  @@index([deletedAt, approvedAt])
+  @@index([deletedAt])
+  @@map("orders")
+}
+
+model OrderItem {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  createdById Int?
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+  updatedById Int?
+  deletedAt DateTime? @db.DateTime(3)
+  deletedById Int?
+  createdBy User? @relation("OrderItem_created",fields:[createdById],references:[id],onDelete:Restrict,onUpdate:Restrict)
+  updatedBy User? @relation("OrderItem_updated",fields:[updatedById],references:[id],onDelete:Restrict,onUpdate:Restrict)
+  deletedBy User? @relation("OrderItem_deleted",fields:[deletedById],references:[id],onDelete:Restrict,onUpdate:Restrict)
+  orderId Int
+  productId Int
+  currentStock Decimal @db.Decimal(12,3)
+  requiredQuantity Decimal @db.Decimal(12,3)
+  order Order @relation(fields:[orderId],references:[id],onDelete:Restrict)
+  product Product @relation(fields:[productId],references:[id],onDelete:Restrict)
+  @@index([orderId, deletedAt])
+  @@index([productId])
+  @@index([deletedAt])
+  @@map("order_items")
+}
