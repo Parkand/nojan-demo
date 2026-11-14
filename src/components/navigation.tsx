@@ -1,9 +1,205 @@
 'use client';
+
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ClipboardList, Package, Tags, Users } from '@/components/icons';
-const links=[{href:'/orders',name:'سفارش‌ها',icon:ClipboardList},{href:'/products',name:'کالاها',icon:Package},{href:'/categories',name:'دسته‌بندی‌ها',icon:Tags},{href:'/users',name:'کاربران',icon:Users}];
-export function Navigation({admin=false}:{admin?:boolean}) {
-  const path=usePathname();
-  return <nav className="navigation" aria-label="منوی اصلی">{links.filter(l=>admin||l.href!=='/users').map(({href,name,icon:Icon})=><Link key={href} href={href} className={path.startsWith(href)?'nav-link active':'nav-link'} aria-current={path.startsWith(href)?'page':undefined}><Icon size={21}/><span>{name}</span></Link>)}</nav>;
+import {
+  ClipboardList,
+  Package,
+  Tags,
+  Users,
+} from '@/components/icons';
+
+function TaskIcon({ size = 21 }: { size?: number }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <rect x="3" y="3" width="18" height="18" rx="3" />
+      <path d="m7 8 1.5 1.5L11 7" />
+      <path d="M14 8h3" />
+      <path d="m7 15 1.5 1.5L11 14" />
+      <path d="M14 15h3" />
+    </svg>
+  );
+}
+
+function RequestIcon({ size = 21 }: { size?: number }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
+      <path d="M14 2v6h6" />
+      <path d="M8 13h8" />
+      <path d="M8 17h5" />
+    </svg>
+  );
+}
+
+function NotificationIcon({ size = 21 }: { size?: number }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+      <path d="M10 21h4" />
+    </svg>
+  );
+}
+
+const links = [
+  {
+    href: '/orders',
+    name: 'سفارش‌ها',
+    icon: ClipboardList,
+    requiresUserManagement: false,
+  },
+  {
+    href: '/tasks',
+    name: 'وظایف',
+    icon: TaskIcon,
+    requiresUserManagement: false,
+  },
+  {
+    href: '/requests',
+    name: 'درخواست‌ها',
+    icon: RequestIcon,
+    requiresUserManagement: false,
+  },
+  {
+    href: '/products',
+    name: 'کالاها',
+    icon: Package,
+    requiresUserManagement: false,
+  },
+  {
+    href: '/categories',
+    name: 'دسته‌بندی‌ها',
+    icon: Tags,
+    requiresUserManagement: false,
+  },
+  {
+    href: '/notifications',
+    name: 'اعلان‌ها',
+    icon: NotificationIcon,
+    requiresUserManagement: false,
+  },
+  {
+    href: '/users',
+    name: 'کاربران',
+    icon: Users,
+    requiresUserManagement: true,
+  },
+];
+
+const numberFormatter = new Intl.NumberFormat('fa-IR');
+
+type NavigationProps = {
+  canManageUsers?: boolean;
+  unreadNotificationCount?: number;
+};
+
+export function Navigation({
+  canManageUsers = false,
+  unreadNotificationCount = 0,
+}: NavigationProps) {
+  const pathname = usePathname();
+
+  const unreadCount = Number.isFinite(unreadNotificationCount)
+    ? Math.max(0, Math.floor(unreadNotificationCount))
+    : 0;
+
+  const formattedUnreadCount = numberFormatter.format(unreadCount);
+  const badgeText = unreadCount > 99 ? '۹۹+' : formattedUnreadCount;
+
+  const visibleLinks = links.filter(
+    (link) => !link.requiresUserManagement || canManageUsers,
+  );
+
+  return (
+    <nav className="navigation" aria-label="منوی اصلی">
+      {visibleLinks.map(({ href, name, icon: Icon }) => {
+        const active =
+          pathname === href || pathname.startsWith(`${href}/`);
+
+        const isNotifications = href === '/notifications';
+
+        const accessibleLabel = isNotifications
+          ? unreadCount > 0
+            ? `اعلان‌ها، ${formattedUnreadCount} اعلان خوانده‌نشده`
+            : 'اعلان‌ها، بدون اعلان خوانده‌نشده'
+          : undefined;
+
+        return (
+          <Link
+            key={href}
+            href={href}
+            className={active ? 'nav-link active' : 'nav-link'}
+            aria-current={active ? 'page' : undefined}
+            aria-label={accessibleLabel}
+            title={accessibleLabel}
+          >
+            <Icon size={21} />
+            <span>{name}</span>
+
+            {isNotifications && unreadCount > 0 && (
+              <span
+                aria-hidden="true"
+                dir="ltr"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  minWidth: 24,
+                  height: 24,
+                  paddingInline: 6,
+                  marginInlineStart: 'auto',
+                  borderRadius: 999,
+                  backgroundColor: '#b91c1c',
+                  color: '#ffffff',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  lineHeight: 1,
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                }}
+              >
+                {badgeText}
+              </span>
+            )}
+          </Link>
+        );
+      })}
+    </nav>
+  );
 }

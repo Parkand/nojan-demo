@@ -1,4 +1,5 @@
 'use client';
+import { PersianDateInput } from '@/components/persian-date-input';
 import { useActionState, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { LoaderCircle, Plus, Trash2, Eye, EyeOff } from '@/components/icons';
@@ -42,7 +43,7 @@ export function OrderForm({products,id,date,initialItems}:{products:ProductOptio
   const patch=(index:number,key:keyof Row,value:string)=>setRows(old=>old.map((row,i)=>i===index?{...row,[key]:value}:row));
   return <ActionForm action="order.save" id={id} label={id?'ذخیره تغییرات سفارش':'ثبت سفارش'}>
     <input type="hidden" name="items" value={JSON.stringify(rows)}/>
-    <div className="form-grid"><label className="field">تاریخ سفارش<input type="date" name="orderDate" required defaultValue={date} min="2000-01-01" max="2100-12-31" dir="ltr"/><small>ورودی مرورگر؛ تاریخ در فهرست به شمسی نمایش داده می‌شود.</small></label>
+    <div className="form-grid"><PersianDateInput date={date}/>
     <label className="field">جستجو میان کالاهای قابل انتخاب<input type="search" value={query} onChange={e=>setQuery(e.target.value)} placeholder="نام کالا، کد یا دسته‌بندی…"/></label></div>
     <div className="section-label"><h2>اقلام سفارش</h2><span className="badge neutral">{new Intl.NumberFormat('fa').format(rows.length)} قلم</span></div>
     <div className="order-lines">{rows.map((row,index)=>{
