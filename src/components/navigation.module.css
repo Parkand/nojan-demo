@@ -1,0 +1,60 @@
+/* src/components/navigation.module.css */
+.navigation {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  padding: 3px 3px 16px;
+}
+.group { min-width: 0; }
+.group + .group { border-top: 1px solid var(--line, #e9ebef); padding-top: 18px; }
+.groupTitle { margin: 0 10px 9px; color: #737b89; font-size: 10px; font-weight: 500; line-height: 1.8; }
+.links { display: grid; gap: 5px; list-style: none; margin: 0; padding: 0; }
+.link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 46px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 9px 11px;
+  color: #697181;
+  font-size: 13px;
+  text-decoration: none;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+.link:hover { background: var(--bg, #f6f7f9); color: var(--ink, #262936); }
+.link.active { background: var(--pink, #fff0f2); color: var(--red, #c82032); font-weight: 600; }
+.link:focus-visible { outline: 2px solid var(--red, #c82032); outline-offset: 2px; }
+.icon { display: inline-flex; flex-shrink: 0; }
+.linkText { min-width: 0; }
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 23px;
+  height: 23px;
+  flex-shrink: 0;
+  margin-inline-start: auto;
+  border-radius: 8px;
+  padding: 0 5px;
+  background: #b91c1c;
+  color: #fff;
+  font-size: 10px;
+  line-height: 1;
+}
+@media (max-width: 760px) {
+  .navigation { flex-direction: row; align-items: stretch; gap: 8px; overflow-x: auto; overflow-y: hidden; padding: 2px; scrollbar-width: thin; }
+  .group { flex-shrink: 0; }
+  .group + .group { border-top: 0; border-inline-start: 1px solid var(--line, #e9ebef); padding-top: 0; padding-inline-start: 8px; }
+  .groupTitle { display: none; }
+  .links { display: flex; gap: 3px; }
+  .link { flex-direction: column; justify-content: center; gap: 4px; min-width: 64px; min-height: 57px; padding: 7px 6px; font-size: 10px; }
+  .badge { position: absolute; top: 1px; inset-inline-end: 1px; min-width: 19px; height: 19px; margin: 0; padding: 0 4px; font-size: 9px; border: 2px solid #fff; }
+}
+@media (prefers-reduced-motion: reduce) { .link { transition: none; } }
